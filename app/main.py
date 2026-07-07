@@ -64,11 +64,30 @@ def _wait_for_db(attempts: int = 10, delay: float = 3.0):
     raise RuntimeError(f"database unreachable after {attempts} attempts: {last}")
 
 
+def _ensure_columns():
+    """Minimal additive schema sync (no Alembic yet): create_all() makes missing
+    TABLES but never alters existing ones, so newly-added COLUMNS on tables that
+    already exist must be added here. Each statement is idempotent (errors if the
+    column already exists are swallowed)."""
+    from sqlalchemy import text
+    additive = [
+        "ALTER TABLE rater_identities ADD COLUMN password_hash VARCHAR(200)",
+    ]
+    for stmt in additive:
+        try:
+            with engine.begin() as conn:
+                conn.execute(text(stmt))
+            log.info("schema sync applied: %s", stmt)
+        except Exception:  # noqa: BLE001 — column already exists / dialect quirk
+            pass
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     validate_prod_env()   # fail closed: a misconfigured privacy system must not boot
     _wait_for_db()
     Base.metadata.create_all(engine)
+    _ensure_columns()
     published = config_loader.publish_if_changed()   # invalid config raises → deploy fails loudly, old version keeps running
     if published:
         log.info("config published: %s", published)
