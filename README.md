@@ -4,6 +4,14 @@ Anonymous, credibility-weighted ratings of the **systems** people work inside �
 
 Built to *improve* the systems it measures — not to farm attention. No ads, no trackers, no paid influence on scores, no individual ever exposed, no leaderboards. The math is public; the questions are not.
 
+## Deploy it in one click
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ysj7pyv4hc-design/ratemy-systems)
+
+Click the button → sign in to Render → **Apply**. Render reads `render.yaml` and provisions the whole stack automatically: the web service, a managed Postgres database, and the three secret keys (it generates and stores them for you — you never touch a secret). The app refuses to boot if anything's misconfigured, so it can't ship insecure.
+
+Defaults are free ($0) so the deploy always succeeds. When you're ready for real traffic, upgrade the database and web service to a paid tier in the Render dashboard — one click each — so data persists and the site stays always-on. Full details, custom domain, and enabling sign-in are in **DEPLOY.md**.
+
 ## Run it locally
 ```bash
 pip install -r requirements.txt
