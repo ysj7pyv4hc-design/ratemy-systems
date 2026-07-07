@@ -1,0 +1,39 @@
+# Render Blueprint — provisions the whole stack in one click.
+# Render reads this file and creates: the web service + a managed Postgres +
+# all env vars (including generating and PERSISTING the three secrets itself,
+# so nobody has to paste them). Edit config/*.yaml → git push → auto-redeploy.
+databases:
+  - name: ratemy-db
+    databaseName: ratemy
+    user: ratemy
+    plan: basic-256mb          # durable managed Postgres. (free tier is deleted after 30 days — do not use for real data)
+
+services:
+  - type: web
+    name: ratemy-systems
+    runtime: python
+    plan: starter              # always-on. 'free' spins down when idle and is fine only for a first look.
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: RMS_ENV
+        value: prod
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: TRUSTED_PROXY_HOPS
+        value: "1"
+      - key: MAIL_PROVIDER
+        value: disabled        # anonymous launch; switch to smtp later to enable sign-in
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ratemy-db
+          property: connectionString
+      - key: RMS_PEPPER        # Render generates once and keeps it stable forever (never rotate this)
+        generateValue: true
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: JOB_TOKEN
+        generateValue: true
+      - key: BASE_URL
+        value: https://ratemy-systems.onrender.com   # update to https://ratemy.systems after the domain is attached

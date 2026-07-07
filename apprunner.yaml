@@ -1,0 +1,15 @@
+# AWS App Runner source-deploy config (GitHub → App Runner, no Docker needed).
+# Edit → git push → live. This is also your config-editing workflow.
+version: 1.0
+runtime: python311
+build:
+  commands:
+    build:
+      - pip install -r requirements.txt psycopg2-binary==2.9.9
+run:
+  runtime-version: 3.11
+  command: python -m uvicorn app.main:app --host 0.0.0.0 --port 8080
+  network:
+    port: 8080
+  # Set env vars in the App Runner service config (Secrets Manager references
+  # supported for RMS_PEPPER / ADMIN_TOKEN / JOB_TOKEN / DATABASE_URL / SMTP_PASS).
