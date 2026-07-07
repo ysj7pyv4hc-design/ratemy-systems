@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!-- composite intelligence: human direction × claude architecture · the charter is the signature -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="description" content="Rate your workplace systems in ten quick taps. Anonymous, aggregate-only." />
+  <title>Rate It — Rate My Systems</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <main class="wrap">
+
+    <!-- STEP 1: company -->
+    <section id="screen-company" class="stack">
+      <h1>Which workplace?</h1>
+      <p class="muted">Start typing. Pick from the list, or add it if it's not there.</p>
+      <div class="field">
+        <label for="company-search">Company</label>
+        <input type="search" id="company-search" autocomplete="off" placeholder="e.g. Acme Logistics" aria-describedby="company-help" />
+        <p id="company-help" class="small">No account needed. Scores only ever publish in groups of 5+ raters.</p>
+      </div>
+      <ul id="company-results" class="results" aria-live="polite"></ul>
+      <button id="company-add" class="btn secondary hidden">Add it &amp; continue →</button>
+    </section>
+
+    <!-- STEP 2: issued items -->
+    <section id="screen-flow" class="stack hidden">
+      <div class="progress" id="progress" aria-hidden="true"></div>
+      <div id="flow" class="flow"></div>
+    </section>
+
+    <!-- STEP 3: optional comment -->
+    <section id="screen-comment" class="stack hidden">
+      <h1>Anything specific?</h1>
+      <p class="muted">Optional. One concrete example beats ten adjectives. Reviewed before any use — never published in a way that could identify you.</p>
+      <div class="field">
+        <label for="comment-text">Clearest example of your biggest gap?</label>
+        <textarea id="comment-text" rows="4" maxlength="1000" placeholder="e.g. Night shift can't reach maintenance — the ticket line closes at 6pm."></textarea>
+      </div>
+      <div class="visually-hidden" aria-hidden="true">
+        <label for="website">Website</label>
+        <input type="text" id="website" tabindex="-1" autocomplete="off" />
+      </div>
+      <button id="submit-rating" class="btn">Submit rating</button>
+      <p class="small muted center">Anonymous, aggregate-only, permanent.</p>
+    </section>
+
+    <!-- STEP 4: instant comparison (A3) -->
+    <section id="screen-result" class="stack hidden">
+      <div class="center stack">
+        <p class="score-sub">Your workplace, as you scored it</p>
+        <div class="score-big" id="result-score">—</div>
+        <p class="score-sub" id="result-expected"></p>
+      </div>
+
+      <div class="card">
+        <div id="result-strength"></div>
+        <div id="result-gap"></div>
+      </div>
+
+      <div class="card">
+        <h3>Not just you</h3>
+        <p id="result-consensus" class="muted">—</p>
+      </div>
+
+      <div class="card">
+        <h3>By category</h3>
+        <div id="result-categories"></div>
+      </div>
+
+      <a class="btn" href="/signal">See the public signal →</a>
+      <p class="small muted center">Your rating joins the next weekly publication. Nothing about you is stored with it.</p>
+    </section>
+
+    <footer class="foot center">
+      <p><strong>ratemy.systems</strong> — rate the system, not the people.</p>
+      <p><a href="/terms">Terms &amp; Privacy</a> · <a href="/colophon">Colophon</a></p>
+    </footer>
+  </main>
+
+  <div id="toast-root" aria-live="assertive"></div>
+  <script src="/js/app.js"></script>
+</body>
+</html>

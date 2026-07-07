@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!-- composite intelligence: human direction × claude architecture · the charter is the signature -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="description" content="Public workplace systems signal — aggregate scores vs. expected range. No rankings, ever." />
+  <title>The Signal — Rate My Systems</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header class="stack">
+      <h1>The <span class="amber">Signal</span></h1>
+      <p class="muted">The aggregate picture, published weekly. Workplaces are compared to the expected range — never ranked, never listed best-to-worst. That's a rule, not a roadmap gap.</p>
+    </header>
+
+    <section class="card stack">
+      <h2>Everyone, together</h2>
+      <p class="count-pill" id="overall-count">—</p>
+      <div id="overall-bars"></div>
+    </section>
+
+    <div class="field">
+      <label for="filter">Look up one workplace</label>
+      <input type="search" id="filter" placeholder="Type a company name…" autocomplete="off" />
+      <p class="small muted">Scores display only at 5+ raters, updated weekly. Below that, privacy wins.</p>
+    </div>
+
+    <section id="companies"></section>
+
+    <nav class="stack">
+      <a class="btn" href="/rate">Add your rating →</a>
+    </nav>
+
+    <footer class="foot center">
+      <p><a href="/">Home</a> · <a href="/terms">Terms &amp; Privacy</a> · <a href="/colophon">Colophon</a></p>
+    </footer>
+  </main>
+  <div id="toast-root" aria-live="assertive"></div>
+  <script src="/js/signal.js"></script>
+</body>
+</html>
