@@ -38,6 +38,62 @@
     return data;
   }
 
+  /* ---------- STEP 0: auth / membership gate ---------- */
+  var PROVIDER_LABELS = { google: 'Continue with Google', github: 'Continue with GitHub', apple: 'Continue with Apple' };
+
+  async function initAuth() {
+    var me = {}, providers = {};
+    try { me = await api('/v1/auth/me'); } catch (e) {}
+    try { providers = await api('/v1/auth/providers'); } catch (e) {}
+
+    if (me.signed_in) {
+      var w = $('whoami');
+      w.innerHTML = 'Signed in as ' + esc(me.handle) + ' · <a href="#" id="signout">sign out</a>';
+      w.classList.remove('hidden');
+      var so = document.getElementById('signout');
+      if (so) so.addEventListener('click', async function (ev) {
+        ev.preventDefault();
+        try { await api('/v1/auth/logout', { method: 'POST', headers: { 'X-CSRF': me.csrf || '' } }); } catch (e) {}
+        location.reload();
+      });
+      show('screen-company');
+      return;
+    }
+
+    if (providers.require_login) {
+      // Build sign-in screen from whatever methods are live.
+      var box = $('social-buttons');
+      box.innerHTML = '';
+      (providers.oauth || []).forEach(function (p) {
+        var b = document.createElement('button');
+        b.className = 'btn';
+        b.textContent = PROVIDER_LABELS[p] || ('Continue with ' + p);
+        b.addEventListener('click', function () { window.location = '/v1/auth/oauth/' + p + '/login'; });
+        box.appendChild(b);
+      });
+      if (providers.email) $('email-login').classList.remove('hidden');
+      $('login-email-btn').addEventListener('click', doEmailLogin);
+      show('screen-login');
+      return;
+    }
+
+    // Login optional — go straight to rating.
+    show('screen-company');
+  }
+
+  async function doEmailLogin() {
+    var email = ($('login-email').value || '').trim();
+    if (!email) { $('login-msg').textContent = 'Enter your email first.'; return; }
+    $('login-email-btn').disabled = true;
+    try {
+      await api('/v1/auth/magic-link', { method: 'POST', body: JSON.stringify({ email: email }) });
+      $('login-msg').textContent = 'Check your email for a sign-in link, then come back and rate.';
+    } catch (e) {
+      $('login-msg').textContent = e.message;
+      $('login-email-btn').disabled = false;
+    }
+  }
+
   /* ---------- STEP 1: company ---------- */
   var searchTimer = null;
   $('company-search').addEventListener('input', function () {
@@ -200,4 +256,7 @@
     });
     $('result-categories').innerHTML = cats;
   }
+
+  // Decide the first screen (sign-in gate vs. straight to rating).
+  initAuth();
 })();
