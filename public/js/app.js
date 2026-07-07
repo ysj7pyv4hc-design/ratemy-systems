@@ -71,8 +71,8 @@
         b.addEventListener('click', function () { window.location = '/v1/auth/oauth/' + p + '/login'; });
         box.appendChild(b);
       });
-      if (providers.email) $('email-login').classList.remove('hidden');
-      $('login-email-btn').addEventListener('click', doEmailLogin);
+      $('btn-register').addEventListener('click', function () { doPasswordAuth('/v1/auth/register'); });
+      $('btn-login').addEventListener('click', function () { doPasswordAuth('/v1/auth/login'); });
       show('screen-login');
       return;
     }
@@ -81,16 +81,20 @@
     show('screen-company');
   }
 
-  async function doEmailLogin() {
+  async function doPasswordAuth(path) {
     var email = ($('login-email').value || '').trim();
-    if (!email) { $('login-msg').textContent = 'Enter your email first.'; return; }
-    $('login-email-btn').disabled = true;
+    var pw = ($('login-pw').value || '');
+    if (!email || !pw) { $('login-msg').textContent = 'Enter your email and a password.'; return; }
+    $('btn-register').disabled = true;
+    $('btn-login').disabled = true;
+    $('login-msg').textContent = '';
     try {
-      await api('/v1/auth/magic-link', { method: 'POST', body: JSON.stringify({ email: email }) });
-      $('login-msg').textContent = 'Check your email for a sign-in link, then come back and rate.';
+      await api(path, { method: 'POST', body: JSON.stringify({ email: email, password: pw }) });
+      location.reload();   // signed in → reload drops you into the rating flow
     } catch (e) {
       $('login-msg').textContent = e.message;
-      $('login-email-btn').disabled = false;
+      $('btn-register').disabled = false;
+      $('btn-login').disabled = false;
     }
   }
 
