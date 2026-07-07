@@ -13,8 +13,26 @@
 <body>
   <main class="wrap">
 
+    <!-- signed-in indicator -->
+    <div id="whoami" class="small muted hidden" style="text-align:right;margin-bottom:8px;"></div>
+
+    <!-- STEP 0: sign in (shown when membership is required) -->
+    <section id="screen-login" class="stack hidden">
+      <h1>Join to rate</h1>
+      <p class="muted">Ratings come from real members — that's what keeps the signal honest instead of gameable. It's free and takes a few seconds.</p>
+      <div id="social-buttons" class="stack"></div>
+      <div id="email-login" class="stack hidden">
+        <div class="field">
+          <label for="login-email">Or sign in with email</label>
+          <input type="email" id="login-email" placeholder="you@email.com" autocomplete="email" />
+        </div>
+        <button id="login-email-btn" class="btn secondary">Email me a sign-in link</button>
+      </div>
+      <p id="login-msg" class="small muted center"></p>
+    </section>
+
     <!-- STEP 1: company -->
-    <section id="screen-company" class="stack">
+    <section id="screen-company" class="stack hidden">
       <h1>Which workplace?</h1>
       <p class="muted">Start typing. Pick from the list, or add it if it's not there.</p>
       <div class="field">
