@@ -18,4 +18,5 @@ ENV PORT=8080 RMS_ENV=prod
 EXPOSE 8080
 USER rms
 
-CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Bind whatever port the platform assigns ($PORT on Railway/Render/etc.), fall back to 8080.
+CMD ["sh", "-c", "python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
