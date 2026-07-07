@@ -38,6 +38,28 @@ class RaterIdentity(Base):
     verified_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
+class OauthIdentity(Base):
+    """Links a social-login account to a rater. Only stores hashed provider id —
+    no raw provider tokens, no third-party profile data kept."""
+    __tablename__ = "oauth_identities"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    provider: Mapped[str] = mapped_column(String(16))                 # google | github | apple
+    provider_uid_hash: Mapped[str] = mapped_column(String(64))        # sha256(provider + subject + pepper)
+    rater_id: Mapped[str] = mapped_column(String(36), ForeignKey("raters.id"), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    __table_args__ = (UniqueConstraint("provider", "provider_uid_hash", name="uq_oauth_provider_uid"),)
+
+
+class OauthState(Base):
+    """Short-lived CSRF/PKCE state for an in-flight OAuth login."""
+    __tablename__ = "oauth_states"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    state: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    provider: Mapped[str] = mapped_column(String(16))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
 class MagicLink(Base):
     __tablename__ = "magic_links"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)

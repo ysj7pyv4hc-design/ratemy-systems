@@ -6,6 +6,7 @@ Session issue + submit. Integrity rules:
 - comments land in moderation, never published raw
 """
 import hashlib
+import os
 import random
 from datetime import datetime, timedelta, timezone
 
@@ -126,6 +127,10 @@ def submit(body: SubmitIn, request: Request, db: Session = Depends(get_db)):
         raise HTTPException(400, "answers must cover exactly the issued items")
 
     rater = optional_rater(request, db)
+    # Membership gate: when REQUIRE_LOGIN is on, only signed-in members can rate.
+    # (Flipped via env once a sign-in method is live — no redeploy needed.)
+    if rater is None and os.environ.get("REQUIRE_LOGIN", "false").lower() == "true":
+        raise HTTPException(401, "sign in to rate")
     if rater is not None and sess.rater_id not in (None, rater.id):
         raise HTTPException(403, "session belongs to another account")
 

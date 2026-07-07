@@ -13,7 +13,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 
-from . import admin, auth, config_loader, intake, public
+from . import admin, auth, config_loader, intake, oauth, public
 from .db import Base, db_session, engine
 from .publication import ensure_initial_snapshot, run_publication
 from .security import (RateLimitMiddleware, SecurityHeadersMiddleware,
@@ -96,6 +96,7 @@ app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(RateLimitMiddleware)
 
 app.include_router(auth.router)
+app.include_router(oauth.router)
 app.include_router(intake.router)
 app.include_router(public.router)
 app.include_router(admin.router)

@@ -51,6 +51,23 @@ def _mint_handle(db: Session) -> str:
     raise HTTPException(500, "handle space exhausted (impossible)")
 
 
+def mint_handle(db: Session) -> str:
+    """Public alias — used by the OAuth module."""
+    return _mint_handle(db)
+
+
+def establish_session(db: Session, rater_id: str, response: Response) -> str:
+    """Create a server-side session for a rater and set the cookie. Returns the CSRF token.
+    Shared by magic-link verify and OAuth callbacks."""
+    session_token = new_token()
+    csrf = new_token()
+    db.add(AuthSession(rater_id=rater_id, token_hash=hash_token(session_token), csrf_token=csrf,
+                       expires_at=_now() + timedelta(days=SESSION_TTL_DAYS)))
+    response.set_cookie(COOKIE, session_token, max_age=SESSION_TTL_DAYS * 86400,
+                        httponly=True, samesite="lax", secure=(ENV == "prod"), path="/")
+    return csrf
+
+
 @router.post("/magic-link")
 def request_magic_link(body: MagicLinkIn, request: Request, db: Session = Depends(get_db)):
     eh = hash_email(body.email)
@@ -135,6 +152,16 @@ def require_rater(request: Request, db: Session = Depends(get_db)) -> Rater:
 def optional_rater(request: Request, db: Session) -> Rater | None:
     s = current_session(request, db)
     return db.get(Rater, s.rater_id) if s else None
+
+
+@router.get("/providers")
+def auth_providers():
+    """Which sign-in methods are live (so the UI shows only working buttons)."""
+    from .oauth import enabled_providers
+    return {"ok": True,
+            "email": os.environ.get("MAIL_PROVIDER", "console") not in ("disabled",),
+            "oauth": enabled_providers(),
+            "require_login": os.environ.get("REQUIRE_LOGIN", "false").lower() == "true"}
 
 
 @router.get("/me")
