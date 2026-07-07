@@ -1,0 +1,33 @@
+# Rate My Systems — scoring config (THE DIALS: how we count)
+# The math is public (served verbatim at /v1/methodology). Edit → redeploy → auto-publish.
+version: 1
+
+weights:
+  tier_multipliers:
+    anonymous: 0.5
+    verified: 1.0
+    worker: 1.75      # phase 2
+    guild_1: 2.0      # phase 2
+    guild_2: 2.5      # phase 2
+    guild_3: 3.0      # phase 2
+  weight_cap: 3.0
+  per_rater_share_cap: 0.15   # no rater >15% of a scope's weighted mass
+
+recency:
+  half_life_days: 270
+
+shrinkage:
+  k: 8                 # pseudo-ratings pulled toward the prior
+  prior: global_mean   # sector_mean once industry codes are populated
+
+privacy:
+  k_anonymity: 5             # min distinct raters before a company/site displays
+  publication_cadence: weekly
+  publication_jitter_hours: 24
+
+display:                      # amendments A1/A3
+  control_limit_sigmas: 2.0   # "expected range" = mean ± 2σ of company scores
+  no_leaderboards: true       # structural; the API refuses ranked output
+
+index:
+  scale: [0, 100]

@@ -1,0 +1,54 @@
+# Rate My Systems — instrument config (THE DIALS: what we ask)
+# Edit freely. Validation runs on publish; bad config never goes live.
+# Items are PRIVATE — never shown outside an issued session.
+version: 1
+
+session:
+  items_per_session: 10
+  min_seconds_before_submit: 10   # bot floor; humans take longer
+  max_session_age_hours: 24
+
+scale:
+  anchors: [Never, Rarely, Sometimes, Usually, Always]
+
+pillars:
+  inputs:      [training, communication, equipment]
+  environment: [cleanliness, safety]
+  governance:  [scheduling, consistency, accountability]
+  feedback:    [recognition, workload]
+
+categories:
+  training:       {label: Training,       blurb: "Are people set up to know how to do the job?"}
+  communication:  {label: Communication,  blurb: "Does information reach the people who need it?"}
+  equipment:      {label: Equipment,      blurb: "Do the tools work?"}
+  cleanliness:    {label: Cleanliness,    blurb: "Is the environment maintained?"}
+  safety:         {label: Safety,         blurb: "Can you work without getting hurt?"}
+  scheduling:     {label: Scheduling,     blurb: "Is time predictable and sane?"}
+  consistency:    {label: Consistency,    blurb: "Are rules and processes stable?"}
+  accountability: {label: Accountability, blurb: "Do problems get owned and fixed?"}
+  recognition:    {label: Recognition,    blurb: "Is good work noticed?"}
+  workload:       {label: Workload,       blurb: "Is the load humanly sustainable?"}
+
+# 2 items per category (20 in bank; each session draws 1/category = 10 items).
+# Behavioral, frequency-anchored. One behavioral-proxy item per pillar (marked proxy: true).
+items:
+  - {key: train_onboard,   category: training,       text: "New people get real training before being expected to perform."}
+  - {key: train_updates,   category: training,       text: "When something changes, we get shown how — not just told."}
+  - {key: comm_reach,      category: communication,  text: "Important information reaches me before it affects my work."}
+  - {key: comm_upward,     category: communication,  text: "When I flag a problem, someone actually reads or hears it.", proxy: true}
+  - {key: equip_works,     category: equipment,      text: "The tools and equipment I need are available and working."}
+  - {key: equip_fixspeed,  category: equipment,      text: "When equipment breaks, it gets fixed within a week."}
+  - {key: clean_maintain,  category: cleanliness,    text: "Work areas are cleaned and maintained on a regular cycle."}
+  - {key: clean_supplies,  category: cleanliness,    text: "Cleaning and hygiene supplies are actually stocked."}
+  - {key: safe_shortcuts,  category: safety,         text: "We can follow the safe procedure without falling behind."}
+  - {key: safe_nearmiss,   category: safety,         text: "Near-misses get reported without anyone getting blamed.", proxy: true}
+  - {key: sched_notice,    category: scheduling,     text: "I know my schedule at least a week in advance."}
+  - {key: sched_coverage,  category: scheduling,     text: "When someone is out, there is a plan besides 'everyone absorbs it'."}
+  - {key: cons_rules,      category: consistency,    text: "Rules are applied the same way from day to day and person to person."}
+  - {key: cons_process,    category: consistency,    text: "The way we're told to do things matches how things actually work."}
+  - {key: acct_owned,      category: accountability, text: "When something breaks, fixing it becomes someone's actual job."}
+  - {key: acct_repeat,     category: accountability, text: "The same problem, once fixed, stays fixed.", proxy: true}
+  - {key: recog_noticed,   category: recognition,    text: "Doing the job well gets noticed by someone who matters."}
+  - {key: recog_credit,    category: recognition,    text: "Credit goes to the people who did the work."}
+  - {key: work_sustain,    category: workload,       text: "I can finish a normal shift without cutting corners to keep up."}
+  - {key: work_looking,    category: workload,       text: "I end most weeks with energy left for my life outside work.", proxy: true}

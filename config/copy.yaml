@@ -1,0 +1,19 @@
+# Rate My Systems — user-facing copy (THE DIALS: every sentence)
+version: 1
+site:
+  title: "Rate My System"
+  headline: "How broken — and how solid — is your workplace?"
+  sub: "Rate the system, not the people. Two minutes, ten questions, real signal."
+rate:
+  intro: "Answer for how things actually are, not how they're supposed to be."
+  submit: "Submit rating"
+  thanks: "Recorded. Here's where your workplace stands."
+compare:
+  strength_label: "Strongest system"
+  gap_label: "Biggest gap"
+  vs_expected: "vs. expected range for all rated workplaces"
+  within_range: "within normal variation"
+  low_n: "not enough ratings to display yet — every rating gets us closer"
+  not_just_you: "of raters flag the same system you scored lowest"
+privacy:
+  blurb: "No names. No individual ratings shown, ever. Scores publish in weekly batches, never below 5 raters."
