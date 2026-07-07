@@ -75,6 +75,25 @@ def constant_time_eq(a: str, b: str) -> bool:
     return hmac.compare_digest(a.encode(), b.encode())
 
 
+# ---------- Password hashing (stdlib PBKDF2, peppered) ----------
+_PBKDF2_ITERS = 210_000
+
+
+def hash_password(pw: str) -> str:
+    salt = secrets.token_hex(16)
+    dk = hashlib.pbkdf2_hmac("sha256", (pw + PEPPER).encode(), bytes.fromhex(salt), _PBKDF2_ITERS)
+    return f"pbkdf2_sha256${_PBKDF2_ITERS}${salt}${dk.hex()}"
+
+
+def verify_password(pw: str, stored: str) -> bool:
+    try:
+        _algo, iters, salt, h = stored.split("$")
+        dk = hashlib.pbkdf2_hmac("sha256", (pw + PEPPER).encode(), bytes.fromhex(salt), int(iters))
+        return hmac.compare_digest(dk.hex(), h)
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def client_ip(request: Request) -> str:
     """Take the IP TRUSTED_PROXY_HOPS from the RIGHT of X-Forwarded-For.
     Upstream proxies append, so the rightmost hops are trustworthy and the

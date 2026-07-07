@@ -16,7 +16,8 @@ from . import mailer
 from .db import get_db
 from .models import AuditLog, AuthSession, MagicLink, Rater, RaterIdentity
 from .security import (ENV, client_ip, constant_time_eq, db_rate_check,
-                       hash_email, hash_ip, hash_token, new_token)
+                       hash_email, hash_ip, hash_password, hash_token,
+                       new_token, verify_password)
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
 
@@ -123,6 +124,43 @@ def verify_magic_link(body: VerifyIn, request: Request, response: Response,
     return {"ok": True, "csrf": csrf}
 
 
+class RegisterIn(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=128)
+
+
+@router.post("/register")
+def register(body: RegisterIn, request: Request, response: Response, db: Session = Depends(get_db)):
+    """Self-contained email + password signup. No mail service required."""
+    db_rate_check(db, f"reg:{hash_ip(client_ip(request))}", max_events=10, window_minutes=60)
+    eh = hash_email(body.email)
+    existing = db.execute(select(RaterIdentity).where(RaterIdentity.email_hash == eh)).scalar_one_or_none()
+    if existing is not None:
+        raise HTTPException(409, "That email is already registered — sign in instead.")
+    rater = Rater(handle=_mint_handle(db), tier="verified")
+    db.add(rater)
+    db.flush()
+    db.add(RaterIdentity(rater_id=rater.id, email_hash=eh, password_hash=hash_password(body.password)))
+    db.add(AuditLog(actor_type="rater", actor_id=rater.id, verb="signup_email"))
+    csrf = establish_session(db, rater.id, response)
+    db.commit()
+    return {"ok": True, "csrf": csrf}
+
+
+@router.post("/login")
+def login_password(body: RegisterIn, request: Request, response: Response, db: Session = Depends(get_db)):
+    """Email + password sign-in. Uniform error, rate-limited."""
+    db_rate_check(db, f"login:{hash_ip(client_ip(request))}", max_events=10, window_minutes=15)
+    eh = hash_email(body.email)
+    ident = db.execute(select(RaterIdentity).where(RaterIdentity.email_hash == eh)).scalar_one_or_none()
+    if ident is None or not ident.password_hash or not verify_password(body.password, ident.password_hash):
+        raise HTTPException(401, "Wrong email or password.")
+    db.add(AuditLog(actor_type="rater", actor_id=ident.rater_id, verb="signin_email"))
+    csrf = establish_session(db, ident.rater_id, response)
+    db.commit()
+    return {"ok": True, "csrf": csrf}
+
+
 def current_session(request: Request, db: Session) -> AuthSession | None:
     tok = request.cookies.get(COOKIE)
     if not tok:
@@ -159,7 +197,8 @@ def auth_providers():
     """Which sign-in methods are live (so the UI shows only working buttons)."""
     from .oauth import enabled_providers
     return {"ok": True,
-            "email": os.environ.get("MAIL_PROVIDER", "console") not in ("disabled",),
+            "password": True,   # self-contained email+password is always available
+            "email_link": os.environ.get("MAIL_PROVIDER", "console") not in ("disabled",),
             "oauth": enabled_providers(),
             "require_login": os.environ.get("REQUIRE_LOGIN", "false").lower() == "true"}
 

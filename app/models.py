@@ -35,6 +35,7 @@ class RaterIdentity(Base):
     __tablename__ = "rater_identities"
     rater_id: Mapped[str] = mapped_column(String(36), ForeignKey("raters.id"), primary_key=True)
     email_hash: Mapped[str] = mapped_column(String(64), unique=True)   # sha256(lowercase email + pepper)
+    password_hash: Mapped[str | None] = mapped_column(String(200), nullable=True)  # pbkdf2; null for magic-link-only
     verified_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
